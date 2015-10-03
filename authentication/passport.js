@@ -13,7 +13,7 @@ passport.use(
       clientSecret:process.env.FACEBOOK_SECRET
     },
     function(accessToken, refreshToken, profile, done) {
-      User.findOneAndUpdate({facebookId: profile.id}, {$set: {facebookName: profile.name.givenName + profile.name.familyName}},{upsert:true, new:true},  function (error, user) {
+      User.findOneAndUpdate({facebookId: profile.id}, {$set: {facebookName: profile.name.givenName + " " +profile.name.familyName}},{upsert:true, new:true},  function (error, user) {
         if (user){
           return done(error, user);
         }
