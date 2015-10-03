@@ -13,11 +13,25 @@ passport.use(
       clientSecret:process.env.FACEBOOK_SECRET
     },
     function(accessToken, refreshToken, profile, done) {
-      User.findOrCreate({facebookId: profile.id, facebookName: profile.name}, function (error, user) {
-        return done(error, user);
+      User.findOne({facebookId: profile.id}, function (error, user) {
+        if (user){
+          return done(error, user);
+        } else {
+          User.create({facebookName: profile.name.givenName + profile.name.familyName} , function(error, newUser){
+            return done(error,newUser);
+          })
+        }
       });
   })
 );
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
 module.exports = passport;
 
