@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 var app = require('../app');
+var mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/firstly');
 
 app.set('port', process.env.PORT || 3000);
 
@@ -11,4 +14,10 @@ process.on('SIGTERM', function() {
   server.close(function() {
     process.exit(0);
   })
+});
+
+process.on('exit', function(){
+  console.log("Server is exiting");
+  mongoose.connection.close();
+  console.log("Server has closed all connections");
 });
