@@ -2,7 +2,19 @@
 var app = require('../app');
 var mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/firstly');
+var mongo_server_string;
+if (process.env.MONGO_PORT_27017_TCP_ADDR && process.env.MONGO_PORT_27017_TCP_PORT){
+  mongo_server_string = process.env.MONGO_PORT_27017_TCP_ADDR+":"+process.env.MONGO_PORT_27017_TCP_PORT+"/firstly";
+} else {
+  mongo_server_string = process.env.MONGO_URI || 'mongodb://localhost/firstly';
+}
+mongoose.connect(mongo_server_string);
+
+mongoose.connection.on('error', console.error.bind(console, 'connection error:'));
+
+mongoose.connection.once('open', function(){
+  console.log("Mongoose Connection Open");
+});
 
 app.set('port', process.env.PORT || 3000);
 
