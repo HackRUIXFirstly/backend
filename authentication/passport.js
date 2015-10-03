@@ -9,8 +9,8 @@ var User = require('../models/user.js');
 
 passport.use(
   new FacebookTokenStrategy({
-      clientID:"",
-      clientSecret:""
+      clientID:process.env.FACEBOOK_CLIENT_ID,
+      clientSecret:process.env.FACEBOOK_SECRET
     },
     function(accessToken, refreshToken, profile, done) {
       User.findOrCreate({facebookId: profile.id, facebookName: profile.name}, function (error, user) {
@@ -18,5 +18,7 @@ passport.use(
       });
   })
 );
+
+module.exports = passport;
 
 

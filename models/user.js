@@ -8,4 +8,4 @@ var userSchema = mongoose.Schema({
   facebookId: {type: String, required: true}
 });
 
-model.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema);
