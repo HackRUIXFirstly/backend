@@ -10,7 +10,7 @@ router.get('/', function(req,res){
 });
 
 router.post('/auth/facebook', passport.authenticate('facebook-token'), function(req,res){
-  res.send(req.user? 200 : 401);
+  res.sendStatus(req.user? 200 : 401);
 });
 
 module.exports = router;
