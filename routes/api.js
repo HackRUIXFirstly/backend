@@ -23,62 +23,81 @@ router.get('/user', function(req, res){
    res.send(req.user);
 });
 
-router.get('/user/:id', function(req, res){
+router.get('/user/:id', function(req, res, next){
    User.findOne({facebookId:req.params.id}, function (error, user) {
+       if (error) {
+           return next(error);
+       }
        if(user){
             res.send(user);
        } else {
-           //TODO result in error
+           return next(new NotFoundError);
        }
    })
 });
 
-router.post('/experience', function (req, res) {
+router.post('/experience', function (req, res, next) {
     //TODO validate all options are there
-    Experience.create({
-        text: req.body.text,
-        facebookId: req.user.facebookId,
-        dateCreated: Date.now()
-    }, function (error, experience) {
-        //TODO Handle Error;
-        if (experience) {
-            res.send(experience);
-        } else {
-            res.sendStatus(400);
-        }
-    });
+    if (req.body.text){
+        Experience.create({
+            text: req.body.text,
+            facebookId: req.user.facebookId,
+            dateCreated: Date.now()
+        }, function (error, experience) {
+            if(error) {
+                return next(error);
+            }
+            if (experience) {
+                res.send(experience);
+            } else {
+                res.sendStatus(400);
+            }
+        });
+    } else {
+        return next(new Error("text field not populated"));
+    }
+
 });
 
-router.get('/experience', function(req,res){
+router.get('/experience', function(req,res, next){
     Experience.find({facebookId:req.user.facebookId}, function(error, experiences){
-        //TODO catch error
+        if(error){
+            return next(error);
+        }
         if(experiences){
             res.send(experiences);
         } else {
-            //TODO Throw Error
+            return next(new NotFoundError);
         }
     });
 });
 
-router.get('/experience/:id', function(req,res){
+router.get('/experience/:id', function(req, res, next){
     Experience.findById(req.params.id, function(error, experience){
-        //TODO catch error
+        if(error){
+            return next(error);
+        }
         if(experience){
             res.send(experience);
         } else {
-            //TODO Throw Error
+            if(error){
+                return next(new NotFoundError);
+            }
         }
     });
 });
 
-router.get('/user/:facebookId/experience', function(req, res) {
+router.get('/user/:facebookId/experience', function(req, res, next) {
     Experience.find({facebookId:req.params.facebookId}, function(error, experiences){
-       //TODO catch error
+        if(error) {
+            return next(error);
+        }
         if(experiences){
             res.send(experiences);
         } else {
-            //TODO Throw Error
+            return next(new NotFoundError);
         }
+
     });
 });
 
