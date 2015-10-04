@@ -1,6 +1,7 @@
 var express = require('express');
 var path = require('path');
 var logger = require('morgan');
+var winston = require('./utilities/logger.js');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require('./authentication/passport.js');
@@ -32,6 +33,10 @@ app.use(passport.session());
 app.use('/', index);
 app.use('/api', api);
 
+app.get('/error', function(req, res, next) {
+    next(new Error("This is a test error"));
+});
+
 /// catch 404 and forward to error handler
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
@@ -46,6 +51,7 @@ app.use(function (req, res, next) {
 
 if (app.get('env') === 'development') {
     app.use(function (err, req, res, next) {
+        winston.log('error', err.message);
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
