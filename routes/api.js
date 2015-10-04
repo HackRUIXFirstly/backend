@@ -177,7 +177,7 @@ router.post('/experience', function (req, res, next) {
 });
 
 router.get('/experience', function(req,res, next){
-    Experience.find({_user:req.user._id}, function(error, experiences){
+    Experience.find({_user:req.user._id},  null, {populate:'_user'}, function(error, experiences){
         if(error){
             return next(error);
         }
@@ -190,7 +190,7 @@ router.get('/experience', function(req,res, next){
 });
 
 router.get('/experience/:id', function(req, res, next){
-    Experience.findById(req.params.id, function(error, experience){
+    Experience.findById(req.params.id,  null, {populate:'_user'}, function(error, experience){
         if(error){
             return next(error);
         }
@@ -206,7 +206,7 @@ router.get('/experience/:id', function(req, res, next){
 
 router.get('/user/:facebookId/experience', function(req, res, next) {
     User.findOne({facebookId:req.params.facebookId}).exec(function(err, user){
-        Experience.find({_user:user._id}, function(error, experiences){
+        Experience.find({_user:user._id}, null, {populate:'_user'}, function(error, experiences){
             if(error) {
                 return next(error);
             }
