@@ -165,7 +165,10 @@ router.post('/experience', function (req, res, next) {
                 return next(error);
             }
             if (experience) {
-                res.send(experience);
+                Experience.findById(experience._id).populate('_user').exec(function(err,exp){
+                    //TODO catch Error;
+                    res.send(exp);
+                });
             } else {
                 res.sendStatus(400);
             }
