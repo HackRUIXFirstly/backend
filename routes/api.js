@@ -19,6 +19,20 @@ router.post('/auth/facebook', function (req, res) {
     res.sendStatus(req.user ? 200 : 401);
 });
 
+router.get('/user', function(req, res){
+   res.send(req.user);
+});
+
+router.get('/user/:id', function(req, res){
+   User.findOne({facebookId:req.params.id}, function (error, user) {
+       if(user){
+            res.send(user);
+       } else {
+           //TODO result in error
+       }
+   })
+});
+
 router.post('/experience', function (req, res) {
     //TODO validate all options are there
     Experience.create({
