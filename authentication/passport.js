@@ -15,13 +15,14 @@ passport.use(
         },
         function(accessToken, refreshToken, profile, done) {
             User.findOneAndUpdate({facebookId: profile.id}, {$set: {facebookName: profile.name.givenName + " " +profile.name.familyName}},{upsert:true, new:true},  function (error, user) {
+                //TODO Handle Error
                 if (user){
-                    AccessToken.findOneAndUpdate({accessToken: accessToken}, {$set: {facebookId: profile.id}},{upsert:true, new:true},  function (error, accessToken) {
-                        if (accessToken){
+                    AccessToken.findOneAndUpdate({accesstoken: accessToken}, {$set: {facebookId: profile.id}},{upsert:true, new:true},  function (error, token) {
+                        //TODO Handle Error
+                        if (token){
                             return done(error, user);
                         }
                     });
-                    return done(error, user);
                 }
             });
         })
