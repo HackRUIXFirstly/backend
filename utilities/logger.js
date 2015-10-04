@@ -1,13 +1,14 @@
 var winston = require('winston');
+require('winston-papertrail').Papertrail;
 
-var Papertrail = require('winston-papertrail').Papertrail;
+var logger = new winston.Logger({
+    transports:[
+        new winston.transports.Papertrail({
+            host: process.env.PAPERTRAIL_URL,
+            port: process.env.PAPERTRAIL_PORT
+        }),
+        new winston.transports.Console()
+    ]
+});
 
-winston.add(
-    new Papertrail({
-        host: process.env.PAPERTRAIL_URL,
-        port: provess.env.PAPERTRAIL_PORT,
-        level: 'error'
-    })
-);
-
-module.exports = winston;
+module.exports = logger;
