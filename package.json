@@ -16,6 +16,7 @@
     "passport-facebook": "^2.0.0",
     "passport-facebook-token": "^3.0.5",
     "winston": "^1.0.2",
+    "winston-papertrail": "^1.0.1",
     "winston-slack": "^0.1.6"
   },
   "devDependencies": {
