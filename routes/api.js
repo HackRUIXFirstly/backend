@@ -33,6 +33,37 @@ router.post('/experience', passport.authenticate('facebook-token'), function (re
     });
 });
 
-router.get('/user/:facebookId/experience');
+router.get('/experience', passport.authenticate('facebook-token'), function(req,res){
+    Experience.find({facebookId:req.user.facebookId}, function(error, experiences){
+        //TODO catch error
+        if(experiences){
+            res.send(experiences);
+        } else {
+            //TODO Throw Error
+        }
+    });
+});
+
+router.get('/experience/:id', passport.authenticate('facebook-token'), function(req,res){
+    Experience.findById(req.params.id, function(error, experience){
+        //TODO catch error
+        if(experience){
+            res.send(experience);
+        } else {
+            //TODO Throw Error
+        }
+    });
+});
+
+router.get('/user/:facebookId/experience', passport.authenticate('facebook-token'), function(req, res) {
+    Experience.find({facebookId:req.params.facebookId}, function(error, experiences){
+       //TODO catch error
+        if(experiences){
+            res.send(experiences);
+        } else {
+            //TODO Throw Error
+        }
+    });
+});
 
 module.exports = router;
