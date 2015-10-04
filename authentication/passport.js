@@ -6,7 +6,7 @@ var passport = require('passport');
 var FacebookTokenStrategy = require('passport-facebook-token');
 
 var User = require('../models/user.js');
-var AccessToken = require('../model/accesstoken.js');
+var AccessToken = require('../models/accesstoken.js');
 
 passport.use(
     new FacebookTokenStrategy({

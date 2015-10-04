@@ -2,7 +2,12 @@ var express = require('express');
 var router = express.Router();
 var passport = require('../authentication/passport.js');
 
+var async = require('async');
+
 var Experience = require("../models/experience.js");
+var AccessToken = require("../models/accesstoken.js");
+
+var FB = require('fb');
 
 router.get('/', function (req, res) {
     res.send(
@@ -15,12 +20,43 @@ router.get('/', function (req, res) {
 
 router.use(passport.authenticate('facebook-token'));
 
-router.post('/auth/facebook', function (req, res) {
+router.post('/auth/facebook', function (req, res, next) {
     res.sendStatus(req.user ? 200 : 401);
 });
 
-router.get('/user', function(req, res){
+router.get('/user', function(req, res, next){
    res.send(req.user);
+});
+
+router.get('/user/friends', function(req, res, next){
+
+    AccessToken.findOne({facebookId:req.user.facebookId},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
+        if (accessToken){
+            FB.setAccessToken(accessToken.accesstoken);
+
+            FB.api('/me/friends', function (fbRes) {
+                if(!fbRes || fbRes.error) {
+                    return next(!fbRes ? 'error occurred' : fbRes.error);
+                } else {
+                    async.map(fbRes.data, function(item, callback){
+                        callback(null, item.id);
+                    }, function(err, results){
+                        if(err){
+                            return next(err);
+                        }
+                        res.send(results);
+                    });
+                }
+            });
+
+        } else {
+            return next(new Error("Access Token Not Found"));
+        }
+    });
+
+
+
+
 });
 
 router.get('/user/:id', function(req, res, next){
