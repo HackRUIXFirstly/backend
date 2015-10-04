@@ -129,7 +129,7 @@ router.get('/user/:id', function(req, res, next){
        if(user){
             res.send(user);
        } else {
-           return next(new NotFoundError);
+           return next(new Error("Cannot find user by ID."));
        }
    })
 });
@@ -165,7 +165,7 @@ router.get('/experience', function(req,res, next){
         if(experiences){
             res.send(experiences);
         } else {
-            return next(new NotFoundError);
+            return next(new Error("No experience object returned from MongoDB."));
         }
     });
 });
@@ -179,7 +179,7 @@ router.get('/experience/:id', function(req, res, next){
             res.send(experience);
         } else {
             if(error){
-                return next(new NotFoundError);
+                return next(new Error("Cannot find experience by ID."));
             }
         }
     });
@@ -193,7 +193,7 @@ router.get('/user/:facebookId/experience', function(req, res, next) {
         if(experiences){
             res.send(experiences);
         } else {
-            return next(new NotFoundError);
+            return next(new Error("Cannot find experiences by userID"));
         }
 
     });
