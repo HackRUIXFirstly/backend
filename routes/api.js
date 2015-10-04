@@ -28,6 +28,38 @@ router.get('/user', function(req, res, next){
    res.send(req.user);
 });
 
+router.get('/user/feed', function(req, res, next){
+    AccessToken.findOne({facebookId:req.user.facebookId},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
+        if (accessToken){
+            FB.setAccessToken(accessToken.accesstoken);
+
+            FB.api('/me/friends', function (fbRes) {
+                if(!fbRes || fbRes.error) {
+                    return next(!fbRes ? 'error occurred' : fbRes.error);
+                } else {
+                    async.map(fbRes.data, function(item, callback){
+                        callback(null, item.id);
+                    }, function(err, results){
+                        if(err){
+                            return next(err);
+                        }
+                        results.push(req.user.facebookId);
+                        Experience.find({facebookId:{$in:[results]}},{},{sort:{'created_at':-1}}, function(err, experiences){
+                            if(err){
+                                return next(err);
+                            }
+                            res.send(experiences);
+                        });
+                    });
+                }
+            });
+
+        } else {
+            return next(new Error("Access Token Not Found"));
+        }
+    });
+});
+
 router.get('/user/friends', function(req, res, next){
 
     AccessToken.findOne({facebookId:req.user.facebookId},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
