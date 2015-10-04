@@ -31,6 +31,7 @@ router.get('/user', function(req, res, next){
 router.get('/user/feed', function(req, res, next){
     AccessToken.findOne({facebookId:req.user.facebookId},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
         if (accessToken){
+
             FB.setAccessToken(accessToken.accesstoken);
 
             FB.api('/me/friends', function (fbRes) {
@@ -44,7 +45,7 @@ router.get('/user/feed', function(req, res, next){
                             return next(err);
                         }
                         results.push(req.user.facebookId);
-                        Experience.find({facebookId:{$in:[results]}},{},{sort:{'created_at':-1}}, function(err, experiences){
+                        Experience.find({facebookId:{$in:results}},null,{sort:{'dateCreated':-1}}, function(err, experiences){
                             if(err){
                                 return next(err);
                             }
@@ -104,7 +105,7 @@ router.get('/user/friends/experiences', function(req, res, next){
                         if(err){
                             return next(err);
                         }
-                        Experience.find({facebookId:{$in:[results]}},{},{sort:{'created_at':-1}}, function(err, experiences){
+                        Experience.find({facebookId:{$in:results}},null,{sort:{'dateCreated':-1}}, function(err, experiences){
                             if(err){
                                 return next(err);
                             }
