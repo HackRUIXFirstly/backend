@@ -140,6 +140,24 @@ router.get('/user/friends/experiences', function(req, res, next){
     });
 });
 
+router.get('/user/picture', function(req, res, next){
+    AccessToken.findOne({_user:req.user._id},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
+        if (accessToken){
+            FB.setAccessToken(accessToken.accesstoken);
+            FB.api('/me', { fields: ['picture'] },function (fbRes) {
+                if(!fbRes || fbRes.error) {
+                    return next(!fbRes ? 'error occurred' : fbRes.error);
+                } else {
+                    res.send(fbRes.picture.data);
+                }
+            });
+
+        } else {
+            return next(new Error("Access Token Not Found"));
+        }
+    });
+});
+
 router.get('/user/:id', function(req, res, next){
    User.findOne({facebookId:req.params.id}, function (error, user) {
        if (error) {
@@ -151,6 +169,26 @@ router.get('/user/:id', function(req, res, next){
            return next(new Error("Cannot find user by ID."));
        }
    })
+});
+
+router.get('/user/:id/picture', function(req, res, next){
+
+    AccessToken.findOne({_user:req.user._id},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
+        if (accessToken){
+            FB.setAccessToken(accessToken.accesstoken);
+            FB.api('/'+req.params.id,{fields:['picture']}, function (fbRes) {
+                if(!fbRes || fbRes.error) {
+                    return next(!fbRes ? 'error occurred' : fbRes.error);
+                } else {
+                    res.send(fbRes.picture.data);
+                }
+            });
+
+        } else {
+            return next(new Error("Access Token Not Found"));
+        }
+    });
+
 });
 
 router.post('/experience', function (req, res, next) {
