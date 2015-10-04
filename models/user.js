@@ -4,8 +4,8 @@
 var mongoose = require('mongoose');
 
 var userSchema = mongoose.Schema({
-  facebookName: {type: String, required: true},
-  facebookId: {type: String, required: true}
+    facebookName: {type: String, required: true},
+    facebookId: {type: String, required: true}
 });
 
 module.exports = mongoose.model("User", userSchema);
