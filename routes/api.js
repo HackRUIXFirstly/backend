@@ -73,7 +73,7 @@ router.get('/user/feed', function(req, res, next){
 
 router.get('/user/friends', function(req, res, next){
 
-    AccessToken.findOne({facebookId:req.user.facebookId},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
+    AccessToken.findOne({_user:req.user._id},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
         if (accessToken){
             FB.setAccessToken(accessToken.accesstoken);
 
@@ -87,7 +87,9 @@ router.get('/user/friends', function(req, res, next){
                         if(err){
                             return next(err);
                         }
-                        res.send(results);
+                        User.find({facebookId:{$in:results}}).exec(function(err, users){
+                            res.send(users);
+                        });
                     });
                 }
             });
@@ -101,7 +103,7 @@ router.get('/user/friends', function(req, res, next){
 });
 
 router.get('/user/friends/experiences', function(req, res, next){
-    AccessToken.findOne({facebookId:req.user.facebookId},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
+    AccessToken.findOne({_user:req.user._id},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
         if (accessToken){
             FB.setAccessToken(accessToken.accesstoken);
 
@@ -115,11 +117,18 @@ router.get('/user/friends/experiences', function(req, res, next){
                         if(err){
                             return next(err);
                         }
-                        Experience.find({facebookId:{$in:results}},null,{sort:{'dateCreated':-1}}, function(err, experiences){
-                            if(err){
-                                return next(err);
-                            }
-                            res.send(experiences);
+                        User.find({facebookId:{$in:results}}).select('_id').exec(function(error, userIds){
+                            async.map(userIds, function(item, callback){
+                                callback(null, item._id);
+                            }, function(err, userIdList){
+                                Experience.find({_user:{$in:userIdList}}).populate('_user').sort({dateCreated:-1}).exec(function(err, experiences){
+                                    if(err){
+                                        return next(err);
+                                    }
+                                    res.send(experiences);
+                                });
+                            });
+
                         });
                     });
                 }
@@ -168,7 +177,7 @@ router.post('/experience', function (req, res, next) {
 });
 
 router.get('/experience', function(req,res, next){
-    Experience.find({facebookId:req.user.facebookId}, function(error, experiences){
+    Experience.find({_user:req.user._id}, function(error, experiences){
         if(error){
             return next(error);
         }
@@ -196,17 +205,20 @@ router.get('/experience/:id', function(req, res, next){
 });
 
 router.get('/user/:facebookId/experience', function(req, res, next) {
-    Experience.find({facebookId:req.params.facebookId}, function(error, experiences){
-        if(error) {
-            return next(error);
-        }
-        if(experiences){
-            res.send(experiences);
-        } else {
-            return next(new Error("Cannot find experiences by userID"));
-        }
+    User.findOne({facebookId:req.params.facebookId}).exec(function(err, user){
+        Experience.find({_user:user._id}, function(error, experiences){
+            if(error) {
+                return next(error);
+            }
+            if(experiences){
+                res.send(experiences);
+            } else {
+                return next(new Error("Cannot find experiences by userID"));
+            }
 
+        });
     });
+
 });
 
 module.exports = router;
