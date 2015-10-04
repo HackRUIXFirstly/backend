@@ -13,11 +13,13 @@ router.get('/', function (req, res) {
     );
 });
 
-router.post('/auth/facebook', passport.authenticate('facebook-token'), function (req, res) {
+router.use(passport.authenticate('facebook-token'));
+
+router.post('/auth/facebook', function (req, res) {
     res.sendStatus(req.user ? 200 : 401);
 });
 
-router.post('/experience', passport.authenticate('facebook-token'), function (req, res) {
+router.post('/experience', function (req, res) {
     //TODO validate all options are there
     Experience.create({
         text: req.body.text,
@@ -33,7 +35,7 @@ router.post('/experience', passport.authenticate('facebook-token'), function (re
     });
 });
 
-router.get('/experience', passport.authenticate('facebook-token'), function(req,res){
+router.get('/experience', function(req,res){
     Experience.find({facebookId:req.user.facebookId}, function(error, experiences){
         //TODO catch error
         if(experiences){
@@ -44,7 +46,7 @@ router.get('/experience', passport.authenticate('facebook-token'), function(req,
     });
 });
 
-router.get('/experience/:id', passport.authenticate('facebook-token'), function(req,res){
+router.get('/experience/:id', function(req,res){
     Experience.findById(req.params.id, function(error, experience){
         //TODO catch error
         if(experience){
@@ -55,7 +57,7 @@ router.get('/experience/:id', passport.authenticate('facebook-token'), function(
     });
 });
 
-router.get('/user/:facebookId/experience', passport.authenticate('facebook-token'), function(req, res) {
+router.get('/user/:facebookId/experience', function(req, res) {
     Experience.find({facebookId:req.params.facebookId}, function(error, experiences){
        //TODO catch error
         if(experiences){
