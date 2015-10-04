@@ -47,7 +47,7 @@ app.use(function (req, res, next) {
 
 if (app.get('env') === 'development') {
     app.use(function (err, req, res, next) {
-        winston.error(err.message);
+        winston.error(err);
         res.status(err.status || 500);
         res.send({
             message: err.message,
@@ -60,7 +60,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function (err, req, res, next) {
     res.status(err.status || 500);
-    winston.error(err.message);
+    winston.error(err);
     res.send({
         message: err.message,
         error: ''
