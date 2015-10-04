@@ -6,6 +6,7 @@ var async = require('async');
 
 var Experience = require("../models/experience.js");
 var AccessToken = require("../models/accesstoken.js");
+var User = require('../models/user.js');
 
 var FB = require('fb');
 
@@ -29,7 +30,7 @@ router.get('/user', function(req, res, next){
 });
 
 router.get('/user/feed', function(req, res, next){
-    AccessToken.findOne({facebookId:req.user.facebookId},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
+    AccessToken.findOne({_user:req.user._id},{},{ sort: { 'created_at' : -1 } }, function(err, accessToken){
         if (accessToken){
 
             FB.setAccessToken(accessToken.accesstoken);
@@ -45,12 +46,21 @@ router.get('/user/feed', function(req, res, next){
                             return next(err);
                         }
                         results.push(req.user.facebookId);
-                        Experience.find({facebookId:{$in:results}},null,{sort:{'dateCreated':-1}}, function(err, experiences){
-                            if(err){
-                                return next(err);
-                            }
-                            res.send(experiences);
+                        User.find({facebookId:{$in:results}}).select('_id').exec(function(error, userIds){
+                            async.map(userIds, function(item, callback){
+                                callback(null, item._id);
+                            }, function(err, userIdList){
+                                Experience.find({_user:{$in:userIdList}}).populate('_user').sort({dateCreated:-1}).exec(function(err, experiences){
+                                    if(err){
+                                        return next(err);
+                                    }
+                                    res.send(experiences);
+                                });
+                            });
+
                         });
+
+
                     });
                 }
             });
@@ -139,7 +149,7 @@ router.post('/experience', function (req, res, next) {
     if (req.body.text){
         Experience.create({
             text: req.body.text,
-            facebookId: req.user.facebookId,
+            _user: req.user._id,
             dateCreated: Date.now()
         }, function (error, experience) {
             if(error) {

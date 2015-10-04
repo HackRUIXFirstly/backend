@@ -17,7 +17,7 @@ passport.use(
             User.findOneAndUpdate({facebookId: profile.id}, {$set: {facebookName: profile.name.givenName + " " +profile.name.familyName}},{upsert:true, new:true},  function (error, user) {
                 //TODO Handle Error
                 if (user){
-                    AccessToken.findOneAndUpdate({accesstoken: accessToken}, {$set: {facebookId: profile.id}},{upsert:true, new:true},  function (error, token) {
+                    AccessToken.findOneAndUpdate({accesstoken: accessToken}, {$set: {_user: user._id}},{upsert:true, new:true},  function (error, token) {
                         //TODO Handle Error
                         if (token){
                             return done(error, user);

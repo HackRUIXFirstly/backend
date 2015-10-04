@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 
 var experienceSchema = mongoose.Schema({
     text: {type: String, required: true},
-    facebookId: {type: String, required: true},
+    _user: {type: mongoose.Schema.Types.ObjectId, required: true, ref:'User'},
     dateCreated: {type: Date, required: true}
 });
 
